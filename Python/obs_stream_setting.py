@@ -1,3 +1,21 @@
+"""
+使用脚本需要在Python3环境下 推荐版本 python3.10
+依赖库：
+scapy            2.5.0
+websocket-client 1.7.0
+
+使用 pip 安装依赖
+pip install scapy
+pip install websocket-client
+
+OBS需要开启 WebSocket: 工具-》Websocket服务器设置-》勾选开启Websoket服务器-》服务器端接口使用默认的4455-》取消勾选鉴权
+
+使用：
+1. 运行脚本
+python obs_stream_setting.py
+2. 直播伴侣或者任意 rtmp协议直播软件，中开始直播
+3. 此时脚本会自动将 推流地址和key 绑定到 obs上
+"""
 import json
 import websocket
 
