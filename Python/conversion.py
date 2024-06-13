@@ -1,47 +1,53 @@
 # coding:utf-8
 
-"""
-@wangyuhang 2024/03/06
-数据转换
-"""
+__version__ = "0.1.1"
+__author__ = "wangyuhang"
 
 import time
+import json
 import datetime
 
 
 class TypeConversion(object):
-    def __init__(self, number):
-        self.number = number
+    def __init__(self, value):
+        self.value = value
 
         self.mapping = {
             "int": int,
-            "float": float
+            "float": float,
+            "json_loads": json.loads
         }
-    
+
     def int(self, default=0):
-        assert type(default) == int, "默认值类型错误"
+        assert isinstance(default, int), "默认值类型错误"
         return self.conversion("int", default)
-    
+
     def float(self, default=0.0):
-        assert type(default) == float, "默认值类型错误"
+        assert isinstance(default, float), "默认值类型错误"
         return self.conversion("float", default)
+
+    def json_loads(self, default=None):
+        if not isinstance(default, dict):
+            default = {}
+
+        return self.conversion("json_loads", default)
 
     def conversion(self, _type, default):
         func = self.mapping.get(_type)
         if func is None:
             return default
-        
-        r_num = default
+
+        result = default
         try:
-            r_num = func(self.number)
+            result = func(self.value)
         except (ValueError, TypeError):
             pass
         finally:
-            return r_num
+            return result
 
 
-def to(number):
-    return TypeConversion(number)
+def to(value):
+    return TypeConversion(value)
 
 
 def two_d_tuple2dict(_2d_tuple):
