@@ -1,6 +1,6 @@
 # coding:utf-8
 
-__version__ = "0.1.1"
+__version__ = "0.2.0"
 __author__ = "wangyuhang"
 
 import time
@@ -8,46 +8,71 @@ import json
 import datetime
 
 
-class TypeConversion(object):
+class TypeConversionBase:
     def __init__(self, value):
         self.value = value
 
-        self.mapping = {
-            "int": int,
-            "float": float,
-            "json_loads": json.loads
-        }
+    def __str__(self):
+        return json.dumps(self.value)
 
     def int(self, default=0):
-        assert isinstance(default, int), "默认值类型错误"
-        return self.conversion("int", default)
+        return TypeConversionInt(self.value, default)
 
     def float(self, default=0.0):
-        assert isinstance(default, float), "默认值类型错误"
-        return self.conversion("float", default)
+        return TypeConversionFloat(self.value, default)
 
-    def json_loads(self, default=None):
-        if not isinstance(default, dict):
-            default = {}
+    def json_load(self, default=None):
+        return TypeConversionJsonLoads(self.value, default)
 
-        return self.conversion("json_loads", default)
+    def dict(self, default=None):
+        return TypeConversionDict(self.value, default)
 
-    def conversion(self, _type, default):
-        func = self.mapping.get(_type)
-        if func is None:
-            return default
 
-        result = default
+class TypeConversionInt(TypeConversionBase, int):
+    def __new__(cls, value, default=0):
         try:
-            result = func(self.value)
+            value = int(value)
         except (ValueError, TypeError):
-            pass
-        finally:
-            return result
+            value = default
+        return super().__new__(cls, value)
+
+    def __init__(self, value, default=0):
+        super().__init__(value)
+
+
+class TypeConversionFloat(TypeConversionBase, float):
+    def __new__(cls, value, default=0.0):
+        try:
+            value = float(value)
+        except (ValueError, TypeError):
+            value = default
+        return super().__new__(cls, value)
+
+    def __init__(self, value, default=0.0):
+        super().__init__(value)
+
+
+class TypeConversionJsonLoads(TypeConversionBase):
+    def __init__(self, value, default=None):
+        try:
+            value = json.loads(value)
+        except (json.JSONDecodeError, TypeError):
+            value = default if default is not None else {}
+        super().__init__(value)
+
+
+class TypeConversionDict(TypeConversionBase):
+    def __init__(self, value, default=None):
+        if not isinstance(value, dict):
+            value = default if default is not None else {}
+        super().__init__(value)
+
+    def get(self, key, default=None):
+        return TypeConversionBase(self.value.get(key, default))
 
 
 def to(value):
-    return TypeConversion(value)
+    return TypeConversionBase(value)
 
 
 def two_d_tuple2dict(_2d_tuple):
