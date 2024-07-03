@@ -13,7 +13,7 @@ class TypeConversionBase:
         self.value = value
 
     def __str__(self):
-        return json.dumps(self.value)
+        return str(self.value)
 
     def int(self, default=0):
         return TypeConversionInt(self.value, default)
